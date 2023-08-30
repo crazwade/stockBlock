@@ -7,7 +7,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=open_data',
+        target: 'https://openapi.twse.com.tw/v1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       }
