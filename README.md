@@ -16,3 +16,9 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
    2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+
+/exchangeReport/BWIBBU_ALL 上市個股日本益比、殖利率及股價淨值比（依代碼查詢）
+/exchangeReport/MI_INDEX 每日收盤行情-大盤統計資訊
+/exchangeReport/STOCK_DAY_ALL 上市個股日成交資訊
+​/exchangeReport​/FMSRFK_ALL 上市個股月成交資訊
+/exchangeReport/FMNPTK_ALL 上市個股年成交資訊

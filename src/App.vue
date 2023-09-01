@@ -24,8 +24,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import * as echarts from 'echarts';
+import { ref, onMounted, getCurrentInstance } from 'vue';
+import { get_MI_INDEX } from './api/api';
+import type { BWIBBU_ALL_TYPE, MI_INDEX_TYPE } from './api/api';
 
 type dataType = {
   指數: string;
@@ -36,39 +37,20 @@ type dataType = {
   特殊處理註記: string;
 };
 
+// Initialize the echarts instance by passing in the DOM element
+let Chart: any;
+
 const dialogVisible = ref(false);
-const isLoading = ref(true);
 
 const barChartRef = ref();
-const filteredData = ref<dataType[]>([]);
+const filteredData = ref<BWIBBU_ALL_TYPE[] | MI_INDEX_TYPE[]>([]);
+const target = ref('');
 
 const handleClose = () => {
   dialogVisible.value = false;
 };
 
-const fetchData = (async () => {
-  const response = await fetch("/api/exchangeReport/MI_INDEX");
-  const data = await response.json();
-
-  filteredData.value = data
-    .filter((item: dataType) => item.漲跌 === '+')
-    .sort((a, b) => parseFloat(b.漲跌百分比) - parseFloat(a.漲跌百分比))
-    .slice(0, 20);
-  console.log('fetch');
-});
-
-function getColor2(num: number) {
-  const getMin = Math.min(...filteredData.value.map(item => parseFloat(item['漲跌百分比'])));
-  const getMax = Math.max(...filteredData.value.map(item => parseFloat(item['漲跌百分比'])));
-  const lightness = (num - getMin) / (getMax - getMin);
-  // 顏色深淺變化 80 最淺 / 60 最深
-  return `hsl(0, 100%, ${80 - lightness * (80 - 60)}%)`;
-}
-
-onMounted (async () => {
-  await fetchData();
-  // Initialize the echarts instance by passing in the DOM element
-  const Chart  = echarts.init(document.getElementById("chart"));
+function setBarChartLayOut () {
   Chart.setOption({
     title: {
       // Set the chart title
@@ -88,20 +70,37 @@ onMounted (async () => {
             }
           },
         ],
-        data: filteredData.value.map(item => ({
-          // Set the name of each data point
-          name: item.指數,
-          // Set the value of each data point
-          value: parseFloat(item.漲跌百分比),
-          itemStyle: {
-            // Set the color of each data point based on its value
-            color: getColor2(Number(item.漲跌百分比)),
-          },
-        })),
         label: {
           show: true,
           backgroundColor: 'transparent',
         },
+      },
+    ],
+    tooltip: {},
+  });
+}
+
+const fetchData = (async () => {
+  // 可能會有多個不同的 API 也代表回傳的 RES 格式不同
+  const resp = await get_MI_INDEX('+');
+
+  if (resp.filteredData.length === 0) {
+    // error
+  }
+
+  filteredData.value = resp.filteredData;
+  target.value = resp.target;
+
+  Chart.setOption({
+    series: [
+      {
+        data: filteredData.value.map(item => ({
+          name: item.指數,
+          value: parseFloat(item.漲跌百分比),
+          itemStyle: {
+            color: getColor(Number(item.漲跌百分比)),
+          },
+        })),
       },
     ],
     tooltip: {
@@ -122,13 +121,24 @@ onMounted (async () => {
       }
     },
   });
-  isLoading.value = false;
+});
+
+function getColor(num: number) {
+  const getMin = Math.min(...filteredData.value.map(item => parseFloat(item[target.value])));
+  const getMax = Math.max(...filteredData.value.map(item => parseFloat(item[target.value])));
+  const lightness = (num - getMin) / (getMax - getMin);
+  // 顏色深淺變化 80 最淺 / 60 最深
+  return `hsl(0, 100%, ${80 - lightness * (80 - 60)}%)`;
+}
+
+onMounted (async () => {
+  const echarts = getCurrentInstance().appContext.config.globalProperties.$echarts;
+  Chart  = echarts.init(barChartRef.value);
+  setBarChartLayOut();
   // Show a loading animation while the chart is being rendered
   Chart.showLoading();
-  setTimeout(() => {
-    // Hide the loading animation after a delay
-    Chart.hideLoading();
-  }, 2000);
+  await fetchData();
+  Chart.hideLoading();
 });
 </script>
 
