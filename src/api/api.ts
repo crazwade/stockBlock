@@ -182,10 +182,10 @@ interface FMSRFK_ALL_TYPE {
 
 /** 上市個股月成交資訊
  *
- *  @param type - WeightedAvgPriceAB 加權(A/B)平均價
- *  @param type - Transaction 成交股數
+ *  @param type - Transaction 成交筆數
+ *  @param type - TradeVolumeB 成交股數
  */
-export const get_FMSRFK_ALL = (async (type: 'WeightedAvgPriceAB' | 'Transaction'): Promise<Response[]> => {
+export const get_FMSRFK_ALL = (async (type: 'Transaction' | 'TradeVolumeB'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/FMSRFK_ALL');
   let filteredData : FMSRFK_ALL_TYPE[] = [];
 
@@ -201,7 +201,7 @@ export const get_FMSRFK_ALL = (async (type: 'WeightedAvgPriceAB' | 'Transaction'
 
   const newData: Response[] = filteredData.map((item) => ({
     name: `${item.Code} ${item.Name}`,
-    compare: type === 'WeightedAvgPriceAB' ? item.WeightedAvgPriceAB : item.Transaction,
+    compare: type === 'Transaction' ? item.Transaction : item.TradeVolumeB,
     info: `證券代號: ${item.Code}<br>
     證券名稱: ${item.Name}<br>
     最高價: ${item.HighestPrice}<br>
