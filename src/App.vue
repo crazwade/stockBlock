@@ -1,63 +1,103 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="Tips"
-    width="80%"
-    :before-close="handleClose"
-  >
-    <span>This is a message</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-  <div>
-    <select v-model="selectValue">
-      <option value="上市個股日本益比">上市個股日本益比</option>
-      <option value="上市個股殖利率">上市個股殖利率</option>
-      <option value="上市個股股價淨值比">上市個股股價淨值比</option>
-      <option value="每日收盤行情">每日收盤行情</option>
-      <option value="上市個股日成交資訊">上市個股日成交資訊</option>
-    </select>
-    <el-button @click="fetchData">Fetch Data</el-button>
-    <div class=" w-full">
-      <div ref="barChartRef" id="chart" style="height: 600px;" class=" mx-auto" />
+  <div class=" flex flex-col justify-center items-center h-full w-full">
+    <div class=" flex flex-col justify-center items-center mb-5">
+      <div class=" w-full mb-5">
+        <select v-model="apiFunction" class=" h-full w-full">
+          <option value="">==主題選擇==</option>
+          <option value="get_FMNPTK_ALL">上市個股年成交資訊</option>
+          <option value="get_FMSRFK_ALL">上市個股月成交資訊</option>
+          <option value="get_MI_INDEX">每日收盤行情-大盤統計資訊</option>
+          <option value="get_BWIBBU_ALL">上市個股日本益比、殖利率及股價淨值比</option>
+          <option value="get_STOCK_DAY_ALL">上市個股日成交資訊</option>
+        </select>
+      </div>
+      <div class=" w-full mb-5">
+        <select v-model="type" class=" h-full w-full">
+          <option value="">==細項選擇==</option>
+          <option
+            v-for="(option, index) in typeOptions"
+            :key="index"
+            :value="option.value"
+          >
+            {{ option.title }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <el-button @click="fetchData">Fetch Data</el-button>
+      </div>
+    </div>
+    <div>
+      <div ref="barChartRef" id="chart" style="height: 600px; width: calc(100vw - 120px);" class=" mx-auto" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { get_BWIBBU_ALL, get_MI_INDEX, get_STOCK_DAY_ALL, get_FMSRFK_ALL, get_FMNPTK_ALL } from './api/api';
+import type { Response as ApiData } from './api/api';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { TitleComponent } from 'echarts/components';
 import { TooltipComponent } from 'echarts/components';
 import { TreemapChart } from 'echarts/charts';
 
-type ApiFunctionKeys = '上市個股日本益比' | '上市個股殖利率' | '上市個股股價淨值比' | '每日收盤行情' | '上市個股日成交資訊';
-
-type dataType = {
-  /** 名稱 */
-  name: string,
-  /** 比較的值 */
-  compare: string,
-  /** tooltip 內容 */
-  info: string,
+const apiMap = {
+  get_FMNPTK_ALL: get_FMNPTK_ALL,
+  get_FMSRFK_ALL: get_FMSRFK_ALL,
+  get_MI_INDEX: get_MI_INDEX,
+  get_BWIBBU_ALL: get_BWIBBU_ALL,
+  get_STOCK_DAY_ALL: get_STOCK_DAY_ALL,
 };
 
-type ApiFunction = () => Promise<dataType[]>;
+const apiTitleMap: {
+  get_FMNPTK_ALL: string;
+  get_FMSRFK_ALL: string;
+  get_MI_INDEX: string;
+  get_BWIBBU_ALL: string;
+  get_STOCK_DAY_ALL: string;
+} = {
+  get_FMNPTK_ALL: '上市個股年成交資訊',
+  get_FMSRFK_ALL: '上市個股月成交資訊',
+  get_MI_INDEX: '每日收盤行情-大盤統計資訊',
+  get_BWIBBU_ALL: '上市個股日本益比、殖利率及股價淨值比',
+  get_STOCK_DAY_ALL: '上市個股日成交資訊',
+};
 
-const apiFunctions: Record<ApiFunctionKeys, ApiFunction> = {
-  上市個股日本益比: get_BWIBBU_ALL,
-  上市個股殖利率: get_MI_INDEX,
-  上市個股股價淨值比: get_STOCK_DAY_ALL,
-  每日收盤行情: get_FMSRFK_ALL,
-  上市個股日成交資訊: get_FMNPTK_ALL,
+interface Option {
+  value: string;
+  title: string;
+}
+
+const typeOptionsMap: {
+  get_FMNPTK_ALL: Option[];
+  get_FMSRFK_ALL: Option[];
+  get_MI_INDEX: Option[];
+  get_BWIBBU_ALL: Option[];
+  get_STOCK_DAY_ALL: Option[];
+} = {
+  get_FMNPTK_ALL: [
+    { value: 'TradeVolume', title: '成交股數' },
+    { value: 'Transaction', title: '成交筆數' },
+  ],
+  get_FMSRFK_ALL: [
+    { value: 'Transaction', title: '成交筆數' },
+    { value: 'TradeVolumeB', title: '成交股數' },
+  ],
+  get_MI_INDEX: [
+    { value: '+', title: '漲幅百分比' },
+    { value: '-', title: '跌幅百分比' },
+  ],
+  get_BWIBBU_ALL: [
+    { value: 'PEratio', title: '本益比' },
+    { value: 'DividendYield', title: '殖利率%' },
+    { value: 'PBratio', title: '股價淨值比' },
+  ],
+  get_STOCK_DAY_ALL: [
+    { value: 'TradeVolume', title: '成交股數' },
+    { value: 'Transaction', title: '成交筆數' },
+  ],
 };
 
 echarts.use([CanvasRenderer, TitleComponent, TooltipComponent, TreemapChart]);
@@ -65,27 +105,47 @@ echarts.use([CanvasRenderer, TitleComponent, TooltipComponent, TreemapChart]);
 // Initialize the echarts instance by passing in the DOM element
 let Chart: echarts.ECharts;
 
-const dialogVisible = ref(false);
-
 const barChartRef = ref();
-const filteredData = ref<dataType[]>([]);
-const selectValue = ref('上市個股日本益比');
+const filteredData = ref<ApiData[]>([]);
+const apiFunction = ref<
+'get_FMNPTK_ALL' |
+'get_FMSRFK_ALL' |
+'get_MI_INDEX' |
+'get_BWIBBU_ALL' |
+'get_STOCK_DAY_ALL' |
+''>('');
+const type = ref<string>('');
+const typeOptions = ref<{
+  value: string,
+  title: string
+}[]>([]);
 
-const handleClose = () => {
-  dialogVisible.value = false;
-};
+watch(
+  () => apiFunction.value,
+  () => {
+  type.value = '';
+  if (apiFunction.value === '') {
+    typeOptions.value = [];
+    return;
+  }
+  typeOptions.value = [...typeOptionsMap[apiFunction.value]];
+});
 
 const fetchData = (async () => {
+  if (type.value === '') {
+    alert('有選項尚未完成');
+    return;
+  }
   Chart.showLoading();
-  const apiFunction = apiFunctions[selectValue.value as ApiFunctionKeys];
+  const apiFunctionToCall = apiMap[apiFunction.value];
 
-  if (!apiFunction) {
-    console.log(selectValue.value);
+  if (!apiFunctionToCall) {
+    console.log(typeOptions.value);
     console.error('Invalid selection');
     return;
   }
   // 可能會有多個不同的 API 也代表回傳的 RES 格式不同
-  const resp = await apiFunction();
+  const resp = await apiFunctionToCall(type.value);
 
   if (resp.length === 0) {
     // error
@@ -96,7 +156,7 @@ const fetchData = (async () => {
   Chart.setOption({
     title: {
       // Set the chart title
-      text: `${selectValue.value} 地圖`,
+      text: `${apiTitleMap[apiFunction.value]} 地圖`,
       top: 20,
     },
     series: [
@@ -109,7 +169,7 @@ const fetchData = (async () => {
           },
         })),
         // Set the series name
-        name: selectValue.value,
+        name: 'Map',
         // Set the chart type to treemap
         type: 'treemap',
         levels: [
@@ -129,7 +189,7 @@ const fetchData = (async () => {
     tooltip: {
       // Set the tooltip format
       formatter: function (params: { name: string }) {
-      const item = (filteredData.value as dataType[]).find(item => item.name === params.name);
+      const item = (filteredData.value as ApiData[]).find(item => item.name === params.name);
 
       if (!item) {
         return '';
@@ -143,23 +203,19 @@ const fetchData = (async () => {
 });
 
 function getColor(num: number) {
-  const getMin = Math.min(...(filteredData.value as dataType[]).map(item => parseFloat(item.compare)));
-  const getMax = Math.max(...(filteredData.value as dataType[]).map(item => parseFloat(item.compare)));
+  const getMin = Math.min(...(filteredData.value as ApiData[]).map(item => parseFloat(item.compare)));
+  const getMax = Math.max(...(filteredData.value as ApiData[]).map(item => parseFloat(item.compare)));
   const lightness = (num - getMin) / (getMax - getMin);
   // 顏色深淺變化 80 最淺 / 60 最深
-  return `hsl(0, 100%, ${80 - lightness * (80 - 60)}%)`;
+  return `hsl(0, 0%, ${80 - lightness * (80 - 20)}%)`;
 }
 
 onMounted (async () => {
   Chart = echarts.init(document.getElementById('chart'));
-  await fetchData();
+  // await fetchData();
 });
 </script>
 
 <style>
-#app {
-  width: 100%;
-  height: 100%;
-}
 </style>
 ./api
