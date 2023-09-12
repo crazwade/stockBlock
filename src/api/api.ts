@@ -1,4 +1,13 @@
-export interface BWIBBU_ALL_TYPE {
+export interface Response {
+  /** 名稱 */
+  name: string,
+  /** 比較的值 */
+  compare: string,
+  /** tooltip 內容 */
+  info: string,
+}
+
+interface BWIBBU_ALL_TYPE {
   /** 股票代號 */
   Code: string,
   /** 股票名稱 */
@@ -17,14 +26,12 @@ export interface BWIBBU_ALL_TYPE {
  *  @param type - DividendYield 殖利率%
  *  @param type - PBratio 股價淨值比
  */
-export const get_BWIBBU_ALL = (async (type: 'PEratio' | 'DividendYield' | 'PBratio'): Promise<{
-  filteredData: BWIBBU_ALL_TYPE[]
-}> => {
+export const get_BWIBBU_ALL = (async (type: 'PEratio' | 'DividendYield' | 'PBratio'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/BWIBBU_ALL');
   let filteredData : BWIBBU_ALL_TYPE[] = [];
 
   if (res.type === 'cors') {
-    return { filteredData: [] };
+    return [];
   }
 
   const resData: BWIBBU_ALL_TYPE[] = await res.json();
@@ -33,10 +40,20 @@ export const get_BWIBBU_ALL = (async (type: 'PEratio' | 'DividendYield' | 'PBrat
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
     .slice(0, 20);
 
-  return { filteredData };
+  const newData: Response[] = filteredData.map((item) => ({
+    name: item.Name,
+    compare: type === 'PEratio' ? item.PEratio : type === 'DividendYield' ? item.DividendYield : item.PBratio,
+    info: `股票代號: ${item.Code}<br>
+    股票名稱: ${item.Name}<br>
+    本益比: ${item.PEratio}<br>
+    殖利率: ${item.DividendYield}<br>
+    股價淨值比: ${item.PBratio}<br>`,
+  }));
+
+  return newData;
 });
 
-export interface MI_INDEX_TYPE {
+interface MI_INDEX_TYPE {
   指數: string,
   收盤指數: string,
   漲跌: string,
@@ -49,15 +66,12 @@ export interface MI_INDEX_TYPE {
  *
  *  @param type - '+' || '-' 漲跌百分比
  */
-export const get_MI_INDEX = (async (type: '+' | '-'): Promise<{
-  filteredData: MI_INDEX_TYPE[];
-  target: string;
-}> => {
+export const get_MI_INDEX = (async (type: '+' | '-'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/MI_INDEX');
   let filteredData : MI_INDEX_TYPE[] = [];
 
   if (res.type === 'cors') {
-    return { filteredData: [], target: '' };
+    return [];
   }
 
   const resData: MI_INDEX_TYPE[] = await res.json();
@@ -71,10 +85,21 @@ export const get_MI_INDEX = (async (type: '+' | '-'): Promise<{
       : parseFloat(a.漲跌百分比) - parseFloat(b.漲跌百分比))
     .slice(0, 20);
 
-  return { filteredData, target: '漲跌百分比' };
+  const newData: Response[] = filteredData.map((item) => ({
+    name: item.指數,
+    compare: item.漲跌百分比,
+    info: `指數: ${item.指數}<br>
+    收盤指數: ${item.收盤指數}<br>
+    漲跌: ${item.漲跌}<br>
+    漲跌點數: ${item.漲跌點數}<br>
+    漲跌百分比: ${item.漲跌百分比}<br>
+    特殊處理註記: ${item.特殊處理註記}`,
+  }));
+
+  return newData;
 });
 
-export interface STOCK_DAY_ALL_TYPE {
+interface STOCK_DAY_ALL_TYPE {
   /** 證券代號 */
   Code: string,
   /** 證券名稱 */
@@ -102,15 +127,12 @@ export interface STOCK_DAY_ALL_TYPE {
  *  @param type - TradeVolume 成交股數
  *  @param type - Transaction 成交筆數
  */
-export const get_STOCK_DAY_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<{
-  filteredData: STOCK_DAY_ALL_TYPE[];
-  target: string;
-}> => {
+export const get_STOCK_DAY_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/STOCK_DAY_ALL');
   let filteredData : STOCK_DAY_ALL_TYPE[] = [];
 
   if (res.type === 'cors') {
-    return { filteredData: [], target: '' };
+    return [];
   }
 
   const resData: STOCK_DAY_ALL_TYPE[] = await res.json();
@@ -119,10 +141,25 @@ export const get_STOCK_DAY_ALL = (async (type: 'TradeVolume' | 'Transaction'): P
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
     .slice(0, 20);
 
-  return { filteredData, target: '漲跌百分比' };
+  const newData: Response[] = filteredData.map((item) => ({
+    name: `${item.Code} ${item.Name}`,
+    compare: type === 'TradeVolume' ? item.TradeVolume : item.Transaction,
+    info: `證券代號: ${item.Code}<br>
+    證券名稱: ${item.Name}<br>
+    成交股數: ${item.TradeVolume}<br>
+    成交金額: ${item.TradeValue}<br>
+    開盤價: ${item.OpeningPrice}<br>
+    最高價: ${item.HighestPrice}<br>
+    最低價: ${item.LowestPrice}<br>
+    收盤價: ${item.ClosingPrice}<br>
+    漲跌價差: ${item.Change}<br>
+    成交筆數: ${item.Transaction}<br>`,
+  }));
+
+  return newData;
 });
 
-export interface FMSRFK_ALL_TYPE {
+interface FMSRFK_ALL_TYPE {
   /** 證券代號 */
   Code: string,
   /** 證券名稱 */
@@ -148,15 +185,12 @@ export interface FMSRFK_ALL_TYPE {
  *  @param type - WeightedAvgPriceAB 加權(A/B)平均價
  *  @param type - Transaction 成交股數
  */
-export const get_FMSRFK_ALL = (async (type: 'WeightedAvgPriceAB' | 'Transaction'): Promise<{
-  filteredData: FMSRFK_ALL_TYPE[];
-  target: string;
-}> => {
+export const get_FMSRFK_ALL = (async (type: 'WeightedAvgPriceAB' | 'Transaction'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/FMSRFK_ALL');
   let filteredData : FMSRFK_ALL_TYPE[] = [];
 
   if (res.type === 'cors') {
-    return { filteredData: [], target: '' };
+    return [];
   }
 
   const resData: FMSRFK_ALL_TYPE[] = await res.json();
@@ -165,10 +199,24 @@ export const get_FMSRFK_ALL = (async (type: 'WeightedAvgPriceAB' | 'Transaction'
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
     .slice(0, 20);
 
-  return { filteredData, target: '漲跌百分比' };
+  const newData: Response[] = filteredData.map((item) => ({
+    name: `${item.Code} ${item.Name}`,
+    compare: type === 'WeightedAvgPriceAB' ? item.WeightedAvgPriceAB : item.Transaction,
+    info: `證券代號: ${item.Code}<br>
+    證券名稱: ${item.Name}<br>
+    最高價: ${item.HighestPrice}<br>
+    最低價: ${item.LowestPrice}<br>
+    加權(A/B)平均價: ${item.WeightedAvgPriceAB}<br>
+    成交筆數: ${item.Transaction}<br>
+    成交金額: ${item.TradeValueA}<br>
+    成交股數: ${item.TradeVolumeB}<br>
+    周轉率: ${item.TurnoverRatio}<br>`,
+  }));
+
+  return newData;
 });
 
-export interface FMNPTK_ALL_TYPE {
+interface FMNPTK_ALL_TYPE {
   /** 證券代號 */
   Code: string,
   /** 證券名稱 */
@@ -196,15 +244,12 @@ export interface FMNPTK_ALL_TYPE {
  *  @param type - TradeVolume 成交股數
  *  @param type - Transaction 成交筆數
  */
-export const get_FMNPTK_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<{
-  filteredData: FMNPTK_ALL_TYPE[];
-  target: string;
-}> => {
+export const get_FMNPTK_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<Response[]> => {
   const res = await fetch('/api/exchangeReport/FMNPTK_ALL');
   let filteredData : FMNPTK_ALL_TYPE[] = [];
 
   if (res.type === 'cors') {
-    return { filteredData: [], target: '' };
+    return [];
   }
 
   const resData: FMNPTK_ALL_TYPE[] = await res.json();
@@ -213,5 +258,20 @@ export const get_FMNPTK_ALL = (async (type: 'TradeVolume' | 'Transaction'): Prom
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
     .slice(0, 20);
 
-  return { filteredData, target: '漲跌百分比' };
+  const newData: Response[] = filteredData.map((item) => ({
+    name: `${item.Code} ${item.Name}`,
+    compare: type === 'TradeVolume' ? item.TradeVolume : item.Transaction,
+    info: `證券代號: ${item.Code}<br>
+    證券名稱: ${item.Name}<br>
+    成交股數: ${item.TradeVolume}<br>
+    成交金額: ${item.TradeValue}<br>
+    成交筆數: ${item.Transaction}<br>
+    最高價: ${item.HighestPrice}<br>
+    最高價日期: ${item.HDate}<br>
+    最低價: ${item.LowestPrice}<br>
+    最低價日期: ${item.LDate}<br>
+    收盤平均價: ${item.AvgClosingPrice}<br>`,
+  }));
+
+  return newData;
 });
