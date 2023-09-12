@@ -137,6 +137,8 @@ const fetchData = (async () => {
     return;
   }
   Chart.showLoading();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const apiFunctionToCall = apiMap[apiFunction.value];
 
   if (!apiFunctionToCall) {
@@ -155,7 +157,8 @@ const fetchData = (async () => {
 
   Chart.setOption({
     title: {
-      // Set the chart title
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       text: `${apiTitleMap[apiFunction.value]} 地圖`,
       top: 20,
     },
