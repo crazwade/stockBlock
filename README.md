@@ -52,7 +52,8 @@ StockBlock 是一個使用 Vue.js 和 ECharts 建立的股市資訊視覺化工�
 - TypeScript
 - ECharts
 - Element Plus
-- tailwindcss
+- Tailwindcss
+- Axios
 
 ## 執行專案
 
