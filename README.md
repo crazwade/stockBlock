@@ -1,24 +1,84 @@
-# Vue 3 + TypeScript + Vite
+# StockBlock
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 專案介紹
 
-## Recommended IDE Setup
+StockBlock 是一個使用 Vue.js 和 ECharts 建立的股市資訊視覺化工具。這個工具會向 [臺灣證券交易所OpenAPI](https://openapi.twse.com.tw/#/) 索取資料，並使用 ECharts 的 treemap 圖形來呈現資料。
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## 使用的 API
 
-## Type Support For `.vue` Imports in TS
+本專案使用以下五隻 API：
+- /exchangeReport/BWIBBU_ALL：上市個股日本益比、殖利率及股價淨值比
+- /exchangeReport/MI_INDEX：每日收盤行情-大盤統計資訊
+- /exchangeReport/STOCK_DAY_ALL：上市個股日成交資訊
+- ​/exchangeReport​/FMSRFK_ALL：上市個股月成交資訊
+- /exchangeReport/FMNPTK_ALL：上市個股年成交資訊
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+## 功能介紹
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+在首頁的地方會有 select option 的方式讓使用者選擇要檢視哪個主題以及副主題，並分類成以下主題：
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+```json
+{
+  "get_FMNPTK_ALL": [
+    { "value": "TradeVolume", "title": "成交股數" },
+    { "value": "Transaction", "title": "成交筆數" }
+  ],
+  "get_FMSRFK_ALL": [
+    { "value": "Transaction", "title": "成交筆數" },
+    { "value": "TradeVolumeB", "title": "成交股數" }
+  ],
+  "get_MI_INDEX": [
+    { "value": "+", "title": "漲幅百分比" },
+    { "value": "-", "title": "跌幅百分比" }
+  ],
+  "get_BWIBBU_ALL": [
+    { "value": "PEratio", "title": "本益比" },
+    { "value": "DividendYield", "title": "殖利率%" },
+    { "value": "PBratio", "title": "股價淨值比" }
+  ],
+  "get_STOCK_DAY_ALL": [
+    { "value": "TradeVolume", "title": "成交股數" },
+    { "value": "Transaction", "title": "成交筆數" }
+  ]
+}
+```
 
-/exchangeReport/BWIBBU_ALL 上市個股日本益比、殖利率及股價淨值比（依代碼查詢）
-/exchangeReport/MI_INDEX 每日收盤行情-大盤統計資訊
-/exchangeReport/STOCK_DAY_ALL 上市個股日成交資訊
-​/exchangeReport​/FMSRFK_ALL 上市個股月成交資訊
-/exchangeReport/FMNPTK_ALL 上市個股年成交資訊
+## 開發環境
+
+本專案使用以下開發工具：
+
+- Vue.js
+- Vite
+- TypeScript
+- ECharts
+- Element Plus
+- tailwindcss
+
+## 執行專案
+
+1. 安裝依賴項目：
+```bash
+npm install
+```
+
+2. 啟動開發伺服器：
+```bash
+npm run dev
+```
+
+3. 編譯專案：
+```bash
+npm run build
+```
+
+4. 預覽編譯後的專案：
+```bash
+npm run preview
+```
+
+## 資料來源
+
+本專案的資料來源為 臺灣證券交易所 OpenAPI。所有資料的智慧財產權均屬於臺灣證券交易所或其他權利人所有。在未經臺灣證券交易所或其他權利人書面同意的情況下，不得逕自使用、修改、重製、公開播送、改作、散布、發行、公開發表。然而，臺灣證券交易所已授權「政府資料開放平臺」提供公眾使用之本網站資料。
+
+如果您要引用或轉載本專案內容，請以適當方式清楚註明資料來源，並確保資料完整性，不得任意增刪。尊重智慧財產權是您應盡的義務。
+
