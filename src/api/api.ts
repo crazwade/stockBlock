@@ -1,3 +1,5 @@
+import axiosInstance from '../axios/axiosInstance';
+
 export interface Response {
   /** 名稱 */
   name: string,
@@ -27,14 +29,14 @@ interface BWIBBU_ALL_TYPE {
  *  @param type - PBratio 股價淨值比
  */
 export const get_BWIBBU_ALL = (async (type: 'PEratio' | 'DividendYield' | 'PBratio'): Promise<Response[]> => {
-  const res = await fetch('/api/exchangeReport/BWIBBU_ALL');
+  const res = await axiosInstance.get('/api/exchangeReport/BWIBBU_ALL');
   let filteredData : BWIBBU_ALL_TYPE[] = [];
 
-  if (res.type === 'cors') {
+  if (res.status !== 200) {
     return [];
   }
 
-  const resData: BWIBBU_ALL_TYPE[] = await res.json();
+  const resData: BWIBBU_ALL_TYPE[] = res.data;
 
   filteredData = resData
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
@@ -67,14 +69,14 @@ interface MI_INDEX_TYPE {
  *  @param type - '+' || '-' 漲跌百分比
  */
 export const get_MI_INDEX = (async (type: '+' | '-'): Promise<Response[]> => {
-  const res = await fetch('/api/exchangeReport/MI_INDEX');
+  const res = await axiosInstance.get('/api/exchangeReport/MI_INDEX');
   let filteredData : MI_INDEX_TYPE[] = [];
 
-  if (res.type === 'cors') {
+  if (res.status !== 200) {
     return [];
   }
 
-  const resData: MI_INDEX_TYPE[] = await res.json();
+  const resData: MI_INDEX_TYPE[] = await res.data;
 
   filteredData = resData
     .filter((item: MI_INDEX_TYPE) => type === '+'
@@ -128,14 +130,14 @@ interface STOCK_DAY_ALL_TYPE {
  *  @param type - Transaction 成交筆數
  */
 export const get_STOCK_DAY_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<Response[]> => {
-  const res = await fetch('/api/exchangeReport/STOCK_DAY_ALL');
+  const res = await axiosInstance.get('/api/exchangeReport/STOCK_DAY_ALL');
   let filteredData : STOCK_DAY_ALL_TYPE[] = [];
 
-  if (res.type === 'cors') {
+  if (res.status !== 200) {
     return [];
   }
 
-  const resData: STOCK_DAY_ALL_TYPE[] = await res.json();
+  const resData: STOCK_DAY_ALL_TYPE[] = await res.data;
 
   filteredData = resData
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
@@ -186,14 +188,14 @@ interface FMSRFK_ALL_TYPE {
  *  @param type - TradeVolumeB 成交股數
  */
 export const get_FMSRFK_ALL = (async (type: 'Transaction' | 'TradeVolumeB'): Promise<Response[]> => {
-  const res = await fetch('/api/exchangeReport/FMSRFK_ALL');
+  const res = await axiosInstance.get('/api/exchangeReport/FMSRFK_ALL');
   let filteredData : FMSRFK_ALL_TYPE[] = [];
 
-  if (res.type === 'cors') {
+  if (res.status !== 200) {
     return [];
   }
 
-  const resData: FMSRFK_ALL_TYPE[] = await res.json();
+  const resData: FMSRFK_ALL_TYPE[] = await res.data;
 
   filteredData = resData
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
@@ -245,14 +247,14 @@ interface FMNPTK_ALL_TYPE {
  *  @param type - Transaction 成交筆數
  */
 export const get_FMNPTK_ALL = (async (type: 'TradeVolume' | 'Transaction'): Promise<Response[]> => {
-  const res = await fetch('/api/exchangeReport/FMNPTK_ALL');
+  const res = await axiosInstance.get('/api/exchangeReport/FMNPTK_ALL');
   let filteredData : FMNPTK_ALL_TYPE[] = [];
 
-  if (res.type === 'cors') {
+  if (res.status !== 200) {
     return [];
   }
 
-  const resData: FMNPTK_ALL_TYPE[] = await res.json();
+  const resData: FMNPTK_ALL_TYPE[] = await res.data;
 
   filteredData = resData
     .sort((a, b) => parseFloat(b[type]) - parseFloat(a[type]))
