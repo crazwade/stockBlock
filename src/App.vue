@@ -30,6 +30,7 @@
     <div>
       <div ref="barChartRef" id="chart" style="height: 600px; width: calc(100vw - 120px);" class=" mx-auto" />
     </div>
+    <div class="version">{{ version }}</div>
   </div>
 </template>
 
@@ -42,6 +43,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { TitleComponent } from 'echarts/components';
 import { TooltipComponent } from 'echarts/components';
 import { TreemapChart } from 'echarts/charts';
+
+const version = process.env.APP_VERSION;
 
 const apiMap = {
   get_FMNPTK_ALL: get_FMNPTK_ALL,
@@ -220,5 +223,14 @@ onMounted (async () => {
 </script>
 
 <style>
+.version {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: 0.2rem;
+  font-size: 0.5rem;
+  color: black;
+  opacity: 0.5;
+}
 </style>
 ./api

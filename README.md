@@ -4,6 +4,8 @@
 
 StockBlock 是一個使用 Vue.js 和 ECharts 建立的股市資訊視覺化工具。這個工具會向 [臺灣證券交易所OpenAPI](https://openapi.twse.com.tw/#/) 索取資料，並使用 ECharts 的 treemap 圖形來呈現資料。
 
+> 注意： 由於 CORS (跨來源資源共享) 的限制，此應用程式在 GitHub Pages 上無法正常運作。在本地開發環境中，我們使用 Vite 的代理功能來繞過這些限制。然而，當應用程式部署到 GitHub Pages 時，這些代理設定不再有效。因此，請考慮在本地運行此應用程式。
+
 ## 使用的 API
 
 本專案使用以下五隻 API：
