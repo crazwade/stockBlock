@@ -335,7 +335,7 @@ onMounted (async () => {
   right: 0;
   bottom: 0;
   padding: 0.2rem;
-  font-size: 0.5rem;
+  font-size: 16px;
   color: black;
   opacity: 0.5;
 }
