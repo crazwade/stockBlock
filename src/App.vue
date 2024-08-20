@@ -2,7 +2,7 @@
   <div class=" flex flex-col justify-center items-center h-full w-full">
     <div class=" flex flex-col justify-center items-center mb-5">
       <div class=" w-full mb-5">
-        <select v-model="apiFunction" class=" h-full w-full">
+        <select v-model="apiFunction" class=" h-full w-full text-black">
           <option value="">==主題選擇==</option>
           <option value="get_FMNPTK_ALL">上市個股年成交資訊</option>
           <option value="get_FMSRFK_ALL">上市個股月成交資訊</option>
@@ -11,8 +11,8 @@
           <option value="get_STOCK_DAY_ALL">上市個股日成交資訊</option>
         </select>
       </div>
-      <div class=" w-full mb-5">
-        <select v-model="type" class=" h-full w-full">
+      <div class="w-full mb-5">
+        <select v-model="type" class="h-full w-full text-black">
           <option value="">==細項選擇==</option>
           <option
             v-for="(option, index) in typeOptions"
@@ -233,4 +233,3 @@ onMounted (async () => {
   opacity: 0.5;
 }
 </style>
-./api
